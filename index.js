@@ -1,10 +1,10 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// Простой веб-сервер, чтобы Glitch выдал нам ссылку для пинга
+// Простой веб-сервер для cron-job.org
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.write("AFK Bot is alive on Glitch 24/7!");
+    res.write("AFK Bot is alive 24/7!");
     res.end();
 }).listen(process.env.PORT || 3000);
 
@@ -12,15 +12,16 @@ function createBot() {
     const bot = mineflayer.createBot({
         host: 'CritReason.aternos.me',
         port: 33086,
-        username: 'AFK_Bot_Glitch',
+        username: 'AFK_Bot_Replit',
+        version: false, // Игнорирует проверку снапшота (26.2) и подключается напрямую
         checkTimeoutInterval: 60 * 1000
     });
 
     bot.on('spawn', () => {
-        console.log('✅ Бот успешно зашел на сервер Aternos!');
+        console.log('✅ Бот успешно зашел на сервер!');
     });
 
-    // Анти-AFK прыжок каждые 40 секунд
+    // Прыжок раз в 40 секунд против AFK-кика
     bot.on('spawn', () => {
         setInterval(() => {
             if (bot && bot.entity) {
@@ -31,7 +32,7 @@ function createBot() {
     });
 
     bot.on('end', () => {
-        console.log('⚠️ Отключение от сервера. Переподключение через 15 секунд...');
+        console.log('⚠️ Отключение. Переподключение через 15 секунд...');
         setTimeout(createBot, 15000);
     });
 
