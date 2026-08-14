@@ -1,27 +1,34 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// Простой веб-сервер для cron-job.org
+// 1. Веб-сервер для Render (и для пинга через cron-job.org)
+const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.write("AFK Bot is alive 24/7!");
+    res.write("AFK Bot is alive on Render 24/7!");
     res.end();
-}).listen(process.env.PORT || 3000);
+}).listen(PORT, () => {
+    console.log(`🌐 Веб-сервер запущен на порту ${PORT}`);
+});
 
+// 2. Функция создания и запуска бота
 function createBot() {
+    console.log('⏳ Подключение бота к Aternos...');
+
     const bot = mineflayer.createBot({
         host: 'CritReason.aternos.me',
         port: 33086,
-        username: 'AFK_Bot_Replit',
-        version: false, // Игнорирует проверку снапшота (26.2) и подключается напрямую
+        username: 'AFK_Bot_Render',
+        version: false, // Отключаем проверку версии для обхода ошибки снапшота 26.2
         checkTimeoutInterval: 60 * 1000
     });
 
+    // Успешный вход
     bot.on('spawn', () => {
         console.log('✅ Бот успешно зашел на сервер!');
     });
 
-    // Прыжок раз в 40 секунд против AFK-кика
+    // Прыжок каждые 40 секунд против AFK-кика
     bot.on('spawn', () => {
         setInterval(() => {
             if (bot && bot.entity) {
@@ -31,13 +38,15 @@ function createBot() {
         }, 40000);
     });
 
+    // Авто-переподключение при вылете
     bot.on('end', () => {
-        console.log('⚠️ Отключение. Переподключение через 15 секунд...');
+        console.log('⚠️ Бот отключился. Повторное подключение через 15 секунд...');
         setTimeout(createBot, 15000);
     });
 
+    // Обработка ошибок
     bot.on('error', err => {
-        console.log('❌ Ошибка подключения:', err.message);
+        console.log('❌ Ошибка бота:', err.message);
     });
 }
 
